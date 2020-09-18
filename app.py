@@ -8,7 +8,7 @@ class Services:
     pass
 
 
-def create_app(test_config):
+def create_app(test_config=None):
     
     app = Flask(__name__)
 
