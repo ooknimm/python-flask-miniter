@@ -172,3 +172,15 @@ def test_timeline(user_dao, tweet_dao):
             'tweet'     : 'bye messi'
         }
     ]
+
+def test_save_and_get_profile_picture(user_dao):
+    user_id = 2
+    user_profile_picture = user_dao.get_profile_picture(user_id)
+    assert user_profile_picture is None
+
+    expected_profile_picture =  "http://ooknimms3.s3.ap-northeast-2.amazonaws.com/1.jpg"
+    user_dao.save_profile_picture(expected_profile_picture, user_id)
+
+    actural_profile_picture = user_dao.get_profile_picture(user_id)
+
+    assert expected_profile_picture == actural_profile_picture

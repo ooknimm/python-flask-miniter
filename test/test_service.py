@@ -6,17 +6,18 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import config
 
-
 from model      import UserDao, TweetDao
 from service    import UserService, TweetService
 from sqlalchemy import create_engine, text
+from unittest   import mock
 
 database = create_engine(config.test_config['DB_URL'], encoding='utf-8', max_overflow=0)
 
 
 @pytest.fixture
 def user_service():
-    return UserService(UserDao(database), config.test_config)
+    mock_s3_client = mock.Mock()
+    return UserService(UserDao(database), config.test_config, mock_s3_client)
 
 @pytest.fixture
 def tweet_service():
@@ -181,3 +182,15 @@ def test_timeline(tweet_service, user_service):
             'tweet'     : 'bye kim'
         }
     ]
+
+def test_save_and_get_profile_picture(user_service):
+    user_id = 1
+    user_profile_picture = user_service.get_profile_picture(user_id)
+    assert user_profile_picture is None
+
+    test_pic = mock.Mock()
+    filename = 'test.png'
+    user_service.save_profile_picture(test_pic, filename, user_id)
+
+    actual_profile_picture = user_service.get_profile_picture(user_id)
+    assert actual_profile_picture == 'http://s3.ap-northeast-2.amazonaws.com/test/test.png'
